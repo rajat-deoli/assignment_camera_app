@@ -22,15 +22,25 @@ const Result = ({navigation, route}) => {
           source={{uri: selfieData.uri}}
           style={{height: 200, width: 200}}
         />
-        <Text
-          style={{color: 'black'}}>{`latitude : ${selfieMeta.latitude}`}</Text>
-        <Text
+        <View
           style={{
-            color: 'black',
-          }}>{`longitude : ${selfieMeta.longitude}`}</Text>
-        <Text style={{color: 'black'}}>{`timestamp : ${moment(
-          selfieMeta.timestamp,
-        ).format('DD MMM YYYY hh:mm a')}`}</Text>
+            position: 'absolute',
+            top: 150,
+            right: 20,
+            transform: [{scale: 0.6}],
+          }}>
+          <Text
+            style={{
+              color: '#ff8c00',
+            }}>{`latitude : ${selfieMeta.latitude}`}</Text>
+          <Text
+            style={{
+              color: '#ff8c00',
+            }}>{`longitude : ${selfieMeta.longitude}`}</Text>
+          <Text style={{color: '#ff8c00'}}>{`timestamp : ${moment(
+            selfieMeta.timestamp,
+          ).format('DD MMM YYYY hh:mm a')}`}</Text>
+        </View>
       </View>
 
       <View>
@@ -38,17 +48,26 @@ const Result = ({navigation, route}) => {
           source={{uri: landmarkData.uri}}
           style={{height: 200, width: 200}}
         />
-        <Text
+
+        <View
           style={{
-            color: 'black',
-          }}>{`latitude : ${landmarkMeta.latitude}`}</Text>
-        <Text
-          style={{
-            color: 'black',
-          }}>{`longitude : ${landmarkMeta.longitude}`}</Text>
-        <Text style={{color: 'black'}}>{`timestamp : ${moment(
-          landmarkMeta.timestamp,
-        ).format('DD MMM YYYY hh:mm a')}`}</Text>
+            position: 'absolute',
+            top: 150,
+            right: 20,
+            transform: [{scale: 0.6}],
+          }}>
+          <Text
+            style={{
+              color: '#ff8c00',
+            }}>{`latitude : ${landmarkMeta.latitude}`}</Text>
+          <Text
+            style={{
+              color: '#ff8c00',
+            }}>{`longitude : ${landmarkMeta.longitude}`}</Text>
+          <Text style={{color: '#ff8c00'}}>{`timestamp : ${moment(
+            landmarkMeta.timestamp,
+          ).format('DD MMM YYYY hh:mm a')}`}</Text>
+        </View>
       </View>
     </View>
   );
