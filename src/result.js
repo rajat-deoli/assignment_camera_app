@@ -19,7 +19,7 @@ const Result = ({navigation, route}) => {
     <View style={styles.container}>
       <View>
         <Image
-          source={{uri: selfieData.uri}}
+          source={{uri: `file://${selfieData.path}`}}
           style={{height: 200, width: 200}}
         />
         <View
@@ -45,7 +45,7 @@ const Result = ({navigation, route}) => {
 
       <View>
         <Image
-          source={{uri: landmarkData.uri}}
+          source={{uri: `file://${landmarkData.path}`}}
           style={{height: 200, width: 200}}
         />
 

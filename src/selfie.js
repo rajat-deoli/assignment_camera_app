@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,19 +10,49 @@ import {
   Modal,
   ActivityIndicator,
 } from 'react-native';
-import {RNCamera} from 'react-native-camera';
+
 import Geolocation from '@react-native-community/geolocation';
-import {transformer} from '../metro.config';
+import {Camera, useCameraDevices} from 'react-native-vision-camera';
 
 const Selfie = ({navigation}) => {
+  const devices = useCameraDevices();
+  const cameraDevice = devices.front;
+
+  const [cameraPermission, setCameraPermission] = useState();
+
   const [selfie, setSelfie] = useState(null);
   const [level, setLevel] = useState(0);
   const [loader, setLoader] = useState(false);
 
+  const cameraPermissionCallback = async () => {
+    const status = await Camera.requestCameraPermission();
+    setCameraPermission(status);
+  };
+
+  useEffect(() => {
+    cameraPermissionCallback();
+  }, []);
+
+  const renderDetectorContent = () => {
+    if (cameraDevice && cameraPermission === 'authorized') {
+      return (
+        <Camera
+          ref={cameraRef}
+          style={styles.camera}
+          device={cameraDevice}
+          isActive={true}
+          photo={true}
+        />
+      );
+    }
+    return <ActivityIndicator size="large" color="#1C6758" />;
+  };
+
   const takePicture = async type => {
     if (cameraRef.current) {
+      console.log('inside');
       const options = {quality: 0.5, base64: false};
-      const data = await cameraRef.current.takePictureAsync(options);
+      const data = await cameraRef.current.takePhoto(options);
       if (type === 'selfie') {
         setSelfie(data);
         console.log('data ', data);
@@ -54,8 +84,6 @@ const Selfie = ({navigation}) => {
           selfieData: selfie,
           selfieMeta: metadata,
         });
-        // const processedData = await processImage(data, metadata);
-        // Save processedData to permanent storage here
       },
       error => {
         console.log(error);
@@ -68,12 +96,11 @@ const Selfie = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      {/* <SafeAreaView style={{flex: 1}}> */}
       <View style={styles.cameraContainer}>
         {selfie && level == 1 ? (
           <View style={styles.imageContainer}>
             <Image
-              source={{uri: selfie.uri}}
+              source={{uri: `file://${selfie.path}`}}
               style={{height: 200, width: 200, transform: [{scaleX: -1}]}}
             />
             <TouchableOpacity
@@ -101,14 +128,9 @@ const Selfie = ({navigation}) => {
             </TouchableOpacity>
           </View>
         ) : (
-          <View>
-            <RNCamera
-              ref={cameraRef}
-              style={styles.camera}
-              type={'front'}
-              autoFocus={'on'}
-              flashMode={'off'}
-            />
+          <View style={{flex: 1}}>
+            {renderDetectorContent()}
+
             <TouchableOpacity
               style={styles.submitButton}
               onPress={() => {
@@ -126,80 +148,6 @@ const Selfie = ({navigation}) => {
           </View>
         )}
       </View>
-      {/* <View style={styles.cameraContainer}>
-        {landmark && stage === 1 ? (
-          <View style={styles.imageContainer}>
-            <Image
-              source={{uri: landmark.uri}}
-              style={{height: 200, width: 200}}
-            />
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={() => {
-                retakePicture('landmark');
-                setStage(0);
-              }}>
-              <Text style={styles.retakeButtonText}>Retake</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.captureButton, {backgroundColor: 'gray'}]}
-              onPress={() => setStage(1)}>
-              <Text style={styles.captureButtonText}>Submit</Text>
-            </TouchableOpacity>
-          </View>
-        ) : stage === 0 ? (
-          <View>
-            <RNCamera
-              ref={cameraRef}
-              style={styles.camera}
-              type={'back'}
-              autoFocus={'on'}
-              flashMode={'off'}
-            />
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={() => {
-                takePicture('back');
-                setStage(1);
-              }}>
-              <Text style={styles.retakeButtonText}>landmark</Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-      </View> */}
-      {/* <View style={styles.cameraContainer}>
-        <RNCamera
-          ref={cameraRef}
-          style={styles.camera}
-          type={'back'}
-          autoFocus={'on'}
-          flashMode={'off'}
-        />
-        {landmark && (
-          <View style={styles.imageContainer}>
-            <Image source={{uri: landmark.uri}} style={styles.image} />
-            <TouchableOpacity
-              style={styles.retakeButton}
-              onPress={() => retakePicture('landmark')}>
-              <Text style={styles.retakeButtonText}>Retake</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        <TouchableOpacity
-          style={styles.captureButton}
-          onPress={() => takePicture('landmark')}>
-          <Text style={styles.captureButtonText}>Landmark</Text>
-        </TouchableOpacity>
-      </View> */}
-      {/* <TouchableOpacity
-        style={styles.submitButton}
-        onPress={() => {
-          addMetadata(selfie);
-          addMetadata(landmark);
-        }}>
-        <Text style={styles.submitButtonText}>Submit</Text>
-      </TouchableOpacity> */}
-      {/* </SafeAreaView> */}
     </View>
   );
 };
@@ -272,6 +220,7 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
   },
   submitButtonText: {
     fontSize: 18,
