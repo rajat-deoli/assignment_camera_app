@@ -1,17 +1,8 @@
-import React, {useState} from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Image,
-  Platform,
-  SafeAreaView,
-  Modal,
-} from 'react-native';
+import React from 'react';
+import {StyleSheet, Text, View, Image, Platform} from 'react-native';
 import moment from 'moment';
 
-const Result = ({navigation, route}) => {
+const Result = ({route}) => {
   const {selfieData, selfieMeta, landmarkData, landmarkMeta} = route.params;
   console.log('metaData :', selfieMeta);
 

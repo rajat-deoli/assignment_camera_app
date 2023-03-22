@@ -11,7 +11,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import Geolocation from '@react-native-community/geolocation';
+//import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import {Camera, useCameraDevices} from 'react-native-vision-camera';
 
 const Landmark = ({navigation, route}) => {
@@ -87,19 +88,12 @@ const Landmark = ({navigation, route}) => {
           landmarkData: landmark,
           landmarkMeta: metadata,
         });
-        const processedData = await processImage(data, metadata);
-        // Save processedData to permanent storage here
       },
       error => {
         console.log(error);
       },
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
     );
-  };
-
-  const processImage = async (data, metadata) => {
-    // Add metadata to the image here using a library like react-native-exif or react-native-image-marker
-    return processedData;
   };
 
   const cameraRef = React.useRef(null);
@@ -200,7 +194,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   retakeButtonText: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#000',
   },
   imageContainer: {

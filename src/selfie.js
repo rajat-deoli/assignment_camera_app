@@ -9,9 +9,12 @@ import {
   SafeAreaView,
   Modal,
   ActivityIndicator,
+  PermissionsAndroid,
+  Alert,
 } from 'react-native';
 
-import Geolocation from '@react-native-community/geolocation';
+//import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import {Camera, useCameraDevices} from 'react-native-vision-camera';
 
 const Selfie = ({navigation}) => {
@@ -23,6 +26,7 @@ const Selfie = ({navigation}) => {
   const [selfie, setSelfie] = useState(null);
   const [level, setLevel] = useState(0);
   const [loader, setLoader] = useState(false);
+  const [hasLocationPermission, setLocationPermission] = useState(false);
 
   const cameraPermissionCallback = async () => {
     const status = await Camera.requestCameraPermission();
@@ -32,6 +36,22 @@ const Selfie = ({navigation}) => {
   useEffect(() => {
     cameraPermissionCallback();
   }, []);
+
+  const locationPermissionCallback = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        setLocationPermission(true);
+      } else {
+        setLocationPermission(false);
+      }
+    } catch (err) {
+      setLocationPermission(false);
+      console.log(err, 'Rajat');
+    }
+  };
 
   const renderDetectorContent = () => {
     if (cameraDevice && cameraPermission === 'authorized') {
@@ -49,6 +69,7 @@ const Selfie = ({navigation}) => {
   };
 
   const takePicture = async type => {
+    locationPermissionCallback();
     if (cameraRef.current) {
       console.log('inside');
       const options = {quality: 0.5, base64: false};
@@ -72,24 +93,26 @@ const Selfie = ({navigation}) => {
   };
 
   const addMetadata = async data => {
-    Geolocation.getCurrentPosition(
-      async position => {
-        const metadata = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          timestamp: new Date().getTime(),
-        };
-        setLoader(false);
-        navigation.navigate('landmark', {
-          selfieData: selfie,
-          selfieMeta: metadata,
-        });
-      },
-      error => {
-        console.log(error);
-      },
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
-    );
+    if (hasLocationPermission) {
+      Geolocation.getCurrentPosition(
+        async position => {
+          const metadata = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            timestamp: new Date().getTime(),
+          };
+          setLoader(false);
+          navigation.navigate('landmark', {
+            selfieData: selfie,
+            selfieMeta: metadata,
+          });
+        },
+        error => {
+          console.log(error, 'rajat');
+        },
+        {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+      );
+    }
   };
 
   const cameraRef = React.useRef(null);
@@ -194,7 +217,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   retakeButtonText: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#000',
   },
   imageContainer: {
